@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import styles from "@/styles/Atividade.module.css";
+import styles from "@/styles/kaban.module.css";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 
@@ -11,14 +11,6 @@ const getItems = count =>
     content: `item ${k}`
   }));
 
-// a little function to help us with reordering the result
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-
-  return result;
-};
 
 const grid = 8;
 
@@ -42,53 +34,310 @@ const getListStyle = isDraggingOver => ({
 });
 
 export default function Kaban() {
-    const [items, setItems] = useState(getItems(10));
+    const [items, setitems] = useState(getItems(10));
+
+    const [column2Items, setColumn2Items] = useState([]);
+    const [column3Items, setColumn3Items] = useState([]);
+    const [column4Items, setColumn4Items] = useState([]);
+    const [column5Items, setColumn5Items] = useState([]);
 
     const onDragEnd = (result) => {
-      // dropped outside the list
       if (!result.destination) {
         return;
       }
+
+      console.log(result)
   
-      const reorderedItems = reorder(
-        items,
-        result.source.index,
-        result.destination.index
-      );
-  
-      setItems(reorderedItems);
+      if (result.source.droppableId === "droppable1" && result.destination.droppableId === "droppable2") {
+        const item = items[result.source.index];
+
+        setitems((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.source.index, 1);
+          return newItems;
+        });
+
+        setColumn2Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.destination.index, 0, item);
+          return newItems;
+        });
+
+      } else if (result.source.droppableId === "droppable2" && result.destination.droppableId === "droppable1") {
+        const item = column2Items[result.source.index];
+
+        setColumn2Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.source.index, 1);
+          return newItems;
+        });
+
+        setitems((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.destination.index, 0, item);
+          return newItems;
+        });
+
+      } else if (result.source.droppableId === "droppable2" && result.destination.droppableId === "droppable3"){
+        const item = column2Items[result.source.index];
+
+        setColumn2Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.source.index, 1);
+          return newItems;
+        });
+
+        setColumn3Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.destination.index, 0, item);
+          return newItems;
+        });
+
+      } else if (result.source.droppableId === "droppable3" && result.destination.droppableId === "droppable2"){
+        const item = column3Items[result.source.index];
+
+        setColumn3Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.source.index, 1);
+          return newItems;
+        });
+
+        setColumn2Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.destination.index, 0, item);
+          return newItems;
+        });
+
+      } else if(result.source.droppableId === "droppable3" && result.destination.droppableId === "droppable4"){
+        const item = column3Items[result.source.index];
+
+        setColumn3Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.source.index, 1);
+          return newItems;
+        });
+
+        setColumn4Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.destination.index, 0, item);
+          return newItems;
+        });
+
+      } else if(result.source.droppableId === "droppable4" && result.destination.droppableId === "droppable3"){
+        const item = column4Items[result.source.index];
+
+        setColumn4Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.source.index, 1);
+          return newItems;
+        });
+
+        setColumn3Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.destination.index, 0, item);
+          return newItems;
+        });
+
+      } else if(result.source.droppableId === "droppable4" && result.destination.droppableId === "droppable5"){
+        const item = column4Items[result.source.index];
+
+        setColumn4Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.source.index, 1);
+          return newItems;
+        });
+
+        setColumn5Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.destination.index, 0, item);
+          return newItems;
+        });
+
+      } else if(result.source.droppableId === "droppable5" && result.destination.droppableId === "droppable4"){
+        const item = column5Items[result.source.index];
+
+        setColumn5Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.source.index, 1);
+          return newItems;
+        });
+
+        setColumn4Items((prevItems) => {
+          const newItems = Array.from(prevItems);
+          newItems.splice(result.destination.index, 0, item);
+          return newItems;
+        });
+
+      }
     };
   
     return (
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable">
-          {(provided, snapshot) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              style={getListStyle(snapshot.isDraggingOver)}
-            >
-              {items.map((item, index) => (
-                <Draggable key={item.id} draggableId={item.id} index={index}>
-                  {(provided, snapshot) => (
+        <>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <div className={styles.drag}>
+                <div className={styles.column}>
+                <h2>Column 1</h2>
+                <Droppable droppableId="droppable1">
+                    {(provided, snapshot) => (
                     <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      style={getItemStyle(
-                        snapshot.isDragging,
-                        provided.draggableProps.style
-                      )}
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        style={getListStyle(snapshot.isDraggingOver)}
                     >
-                      {item.content}
+                        {items.map((item, index) => (
+                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                            <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={getItemStyle(
+                                snapshot.isDragging,
+                                provided.draggableProps.style
+                                )}
+                            >
+                                {item.content}
+                            </div>
+                            )}
+                        </Draggable>
+                        ))}
+                        {provided.placeholder}
                     </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
+                    )}
+                </Droppable>
+                </div>
+
+                <div className={styles.column}>
+                <h2>Column 2</h2>
+                <Droppable droppableId="droppable2">
+                    {(provided, snapshot) => (
+                    <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        style={getListStyle(snapshot.isDraggingOver)}
+                    >
+                        {column2Items.map((item, index) => (
+                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                            <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={getItemStyle(
+                                snapshot.isDragging,
+                                provided.draggableProps.style
+                                )}
+                            >
+                                {item.content}
+                            </div>
+                            )}
+                        </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                    )}
+                </Droppable>
+                </div>
+
+                <div className={styles.column}>
+                <h2>Column 3</h2>
+                <Droppable droppableId="droppable3">
+                    {(provided, snapshot) => (
+                    <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        style={getListStyle(snapshot.isDraggingOver)}
+                    >
+                        {column3Items.map((item, index) => (
+                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                            <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={getItemStyle(
+                                snapshot.isDragging,
+                                provided.draggableProps.style
+                                )}
+                            >
+                                {item.content}
+                            </div>
+                            )}
+                        </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                    )}
+                </Droppable>
+                </div>
+
+                <div className={styles.column}>
+                <h2>Column 4</h2>
+                <Droppable droppableId="droppable4">
+                    {(provided, snapshot) => (
+                    <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        style={getListStyle(snapshot.isDraggingOver)}
+                    >
+                        {column4Items.map((item, index) => (
+                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                            <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={getItemStyle(
+                                snapshot.isDragging,
+                                provided.draggableProps.style
+                                )}
+                            >
+                                {item.content}
+                            </div>
+                            )}
+                        </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                    )}
+                </Droppable>
+                </div>
+
+                <div className={styles.column}>
+                <h2>Column 5</h2>
+                <Droppable droppableId="droppable5">
+                    {(provided, snapshot) => (
+                    <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        style={getListStyle(snapshot.isDraggingOver)}
+                    >
+                        {column5Items.map((item, index) => (
+                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                            <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={getItemStyle(
+                                snapshot.isDragging,
+                                provided.draggableProps.style
+                                )}
+                            >
+                                {item.content}
+                            </div>
+                            )}
+                        </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                    )}
+                </Droppable>
+                </div>
             </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-    );
+          </DragDropContext>
+          <div><Link href="/">Voltar</Link></div>
+        </>
+      );
+    
 }
