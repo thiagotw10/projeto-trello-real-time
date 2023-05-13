@@ -12,7 +12,7 @@ export default function Atividade() {
   
 
   useEffect(() => {
-    const socket = io('http://localhost:3000')
+    const socket = io('http://localhost:3001')
     setSocket(socket)
     socket.on('connect', () => {
       console.log('connected')

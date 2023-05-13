@@ -22,11 +22,17 @@ const redis = new Redis();
 
 io.on('connection', (socket) => {
     // console.log(socket.id+', conectado ...')
-
+    function generateUniqueId() {
+      const timestamp = new Date().getTime();
+      const random = Math.floor(Math.random() * 10000);
+      return `${timestamp}-${random}`;
+    }
+    
     const chave = 'dados'
     socket.on('cardRender', (msg) => {
+      const uniqueId = generateUniqueId();
       const jsonArray = JSON.parse('[]');
-      const novoObjeto = {tarefa: msg.tarefa};
+      const novoObjeto = {id: uniqueId, tarefa: msg.tarefa};
 
       redis.exists(chave, (err, result) => {
         if (err) {
@@ -70,7 +76,7 @@ io.on('connection', (socket) => {
 
   });
 
-const porta = 3000  
+const porta = 3001  
 server.listen(porta, () => {
   console.log(`listening on *:${porta}`);
 });

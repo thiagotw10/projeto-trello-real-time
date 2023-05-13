@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import styles from "@/styles/kaban.module.css";
+import { io } from 'socket.io-client'
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 
@@ -34,12 +35,35 @@ const getListStyle = isDraggingOver => ({
 });
 
 export default function Kaban() {
-    const [items, setitems] = useState(getItems(10));
-
+    const [socket, setSocket] = useState(null);
+    const [items, setitems] = useState([]);
     const [column2Items, setColumn2Items] = useState([]);
     const [column3Items, setColumn3Items] = useState([]);
     const [column4Items, setColumn4Items] = useState([]);
     const [column5Items, setColumn5Items] = useState([]);
+
+
+    useEffect(() => {
+        const socket = io('http://localhost:3001')
+        setSocket(socket)
+        socket.on('connect', () => {
+          console.log('connected')
+        })
+    
+        socket.on('disconnect', () => {
+          console.log('disconnected')
+        })
+    
+        socket.on('cardRender', (msg)=>{
+          let message = JSON.parse(msg.dados)
+          if(message)
+          setitems(message)
+        })
+    
+        return () => {
+          socket.disconnect()
+        }
+      }, [])
 
     const onDragEnd = (result) => {
       if (!result.destination) {
@@ -185,7 +209,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -196,7 +220,7 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.content}
+                                {item.tarefa}
                             </div>
                             )}
                         </Draggable>
@@ -217,7 +241,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {column2Items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -228,7 +252,7 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.content}
+                                {item.tarefa}
                             </div>
                             )}
                         </Draggable>
@@ -249,7 +273,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {column3Items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -260,7 +284,7 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.content}
+                                {item.tarefa}
                             </div>
                             )}
                         </Draggable>
@@ -281,7 +305,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {column4Items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -292,7 +316,7 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.content}
+                                {item.tarefa}
                             </div>
                             )}
                         </Draggable>
@@ -313,7 +337,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {column5Items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -324,7 +348,7 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.content}
+                                {item.tarefa}
                             </div>
                             )}
                         </Draggable>
