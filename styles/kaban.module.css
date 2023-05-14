@@ -1,3 +1,5 @@
+
+
 .drag{
   display: flex;
   justify-content: space-between;
@@ -11,7 +13,7 @@
 
 .nome{
   display: flex;
-  height: 35px;
+  min-height: 35px;
   justify-content: flex-start;
   align-items: center;
   background-color: aqua;
@@ -59,10 +61,38 @@
   display: flex;
   align-items: center;
   background-color: aquamarine;
-  height: 20px;
+  height: 50px;
   padding: 10px;
   justify-content: space-around;
   border-radius: 5px;
   margin-bottom: 10px;
   margin-right: 5px;
+  margin-top: 10px;
+}
+
+.titulo p{
+  margin: 0;
+  padding: 0;
+}
+
+/* modal agendar */
+
+.modals{
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  top: 0;
+  height: 100vh;
+  z-index: 99999999;
+  background-color: rgba(0, 0, 0, 0.632);
+}
+
+.formmodal{
+  display:  flex;
+  flex-direction: column;
+  background-color: white;
+  width: 400px;
+  height: 400px;
 }

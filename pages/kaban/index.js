@@ -5,6 +5,7 @@ import { io } from 'socket.io-client'
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
 import { AiOutlineEllipsis } from "react-icons/ai";
+import DetalhesModal from "./DetalhesModal";
 
 
 const grid = 8;
@@ -26,12 +27,10 @@ const getListStyle = isDraggingOver => ({
   padding: grid,
   width: 300,
   overflowY: 'auto',
-  height: '80vh',
+  height: '85vh',
 });
 
-function modalConteudo(item){
-    console.table(item)
-}
+
 
 const config = {
     headers: { Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4` }
@@ -40,6 +39,20 @@ const config = {
 export default function Kaban() {
 
     const [socket, setSocket] = useState(null);
+
+    const [exibirModal, setExibirModal] = useState(false);
+    const [modalData, setModalData] = useState(null);
+
+    const modalConteudo = (item) => {
+        console.table(item);
+        setModalData(item);
+        setExibirModal(true);
+    };
+
+    const fecharModal = () => {
+        setModalData(null);
+        setExibirModal(false);
+    };
 
     const [items, setitems] = useState([]);
     const [column2Items, setColumn2Items] = useState([]);
@@ -463,6 +476,9 @@ export default function Kaban() {
                 </div>
             </div>
           </DragDropContext>
+          {exibirModal && (
+                <DetalhesModal dados={modalData} onClose={fecharModal} />
+          )}
           <div><Link href="/">Voltar</Link></div>
         </>
       );
