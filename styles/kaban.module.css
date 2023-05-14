@@ -2,3 +2,67 @@
   display: flex;
   justify-content: space-between;
 }
+
+.card{
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+}
+
+.nome{
+  display: flex;
+  height: 35px;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: aqua;
+  padding: 5px;
+}
+
+.nome span{
+  margin-left: 10px;
+}
+
+.conteudo{
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  min-height: 100px;
+  background-color: aliceblue;
+}
+
+.conteudo .atendimento{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+
+.conteudo span{
+  margin-top: 1px;
+  margin-bottom: 1px;
+  font-size: small;
+}
+
+.icones{
+  font-size: 40px;
+}
+
+.bolinha{
+  background-color: aqua;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.titulo{
+  display: flex;
+  align-items: center;
+  background-color: aquamarine;
+  height: 20px;
+  padding: 10px;
+  justify-content: space-around;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  margin-right: 5px;
+}

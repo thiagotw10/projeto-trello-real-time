@@ -3,6 +3,7 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const axios = require('axios');
 const io = new Server(server,{
     maxHttpBufferSize: 10 * 1024 * 1024, // 10MB
     cors: {
@@ -19,60 +20,23 @@ const Redis = require('ioredis');
 
 const redis = new Redis();
 
-
+let dadosArray = []
 io.on('connection', (socket) => {
     // console.log(socket.id+', conectado ...')
-    function generateUniqueId() {
-      const timestamp = new Date().getTime();
-      const random = Math.floor(Math.random() * 10000);
-      return `${timestamp}-${random}`;
-    }
-    
-    const chave = 'dados'
-    socket.on('cardRender', (msg) => {
-      const uniqueId = generateUniqueId();
-      const jsonArray = JSON.parse('[]');
-      const novoObjeto = {id: uniqueId, tarefa: msg.tarefa};
 
-      redis.exists(chave, (err, result) => {
-        if (err) {
-          console.error(err);
-        } else if (result === 1) {
-
-             
-             redis.get('dados', (err, result) => {
-                let res = JSON.parse(result);
-                res.push(novoObjeto);
-                redis.set('dados', JSON.stringify(res));
-                io.emit('cardRender', {dados: JSON.stringify(res)});
-             });
-          
-
-        } else {
-            
-            jsonArray.push(novoObjeto);
-            redis.set('dados', JSON.stringify(jsonArray));
-            io.emit('cardRender', {dados: JSON.stringify(jsonArray)});
-        }
-      });
+    socket.on('cardRender', async (msg) => {
+      const config = {
+        headers: { Authorization: `Bearer ${msg.token}` }
+    };
+      var dados =  await axios.get(msg.url, config).then((val)=>{
+        io.emit('cardRender', {dados: JSON.stringify(val.data)});
+        dadosArray = val.data
+      }).catch((error)=>{
+        io.emit('cardRender', {dados: JSON.stringify(dadosArray)});
+      })
     });
 
-  
-
-    redis.get('dados', (err, result) => {
-        io.emit('cardRender', {dados: result})
-    });
-
-
-    socket.on('apagar', (val)=>{
-        redis.get('dados', (err, result)=>{
-           let dados = JSON.parse(result)
-           const novoArray = dados.filter(item => item.tarefa !== val);
-           redis.set('dados', JSON.stringify(novoArray))
-           io.emit('cardRender', {dados: JSON.stringify(novoArray)})
-        })
-    })
-    
+      
 
   });
 

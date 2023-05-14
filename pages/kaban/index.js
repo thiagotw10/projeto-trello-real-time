@@ -3,14 +3,8 @@ import Link from "next/link";
 import styles from "@/styles/kaban.module.css";
 import { io } from 'socket.io-client'
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
-
-// fake data generator
-const getItems = count =>
-  Array.from({ length: count }, (v, k) => k).map(k => ({
-    id: `item-${k}`,
-    content: `item ${k}`
-  }));
+import axios from "axios";
+import { AiOutlineEllipsis } from "react-icons/ai";
 
 
 const grid = 8;
@@ -18,36 +12,52 @@ const grid = 8;
 const getItemStyle = (isDragging, draggableStyle) => ({
   // some basic styles to make the items look a bit nicer
   userSelect: "none",
-  padding: grid * 2,
-  margin: `0 0 ${grid}px 0`,
-
+  padding: grid * 1,
+  margin: `0 0 ${grid}px 0`, 
   // change background colour if dragging
   background: isDragging ? "lightgreen" : "grey",
-
   // styles we need to apply on draggables
-  ...draggableStyle
+  ...draggableStyle,
+  minHeight: '160px'
 });
 
 const getListStyle = isDraggingOver => ({
   background: isDraggingOver ? "lightblue" : "lightgrey",
   padding: grid,
-  width: 250
+  width: 300,
+  overflowY: 'auto',
+  height: '80vh',
 });
 
+function modalConteudo(item){
+    console.table(item)
+}
+
+const config = {
+    headers: { Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4` }
+};
+
 export default function Kaban() {
+
     const [socket, setSocket] = useState(null);
+
     const [items, setitems] = useState([]);
     const [column2Items, setColumn2Items] = useState([]);
     const [column3Items, setColumn3Items] = useState([]);
     const [column4Items, setColumn4Items] = useState([]);
     const [column5Items, setColumn5Items] = useState([]);
 
+    const [colum1Count, setcolum1Count] = useState(0);
+    const [colum2Count, setcolum2Count] = useState(0);
+    const [colum3Count, setcolum3Count] = useState(0);
+    const [colum4Count, setcolum4Count] = useState(0);
+    const [colum5Count, setcolum5Count] = useState(0);
 
     useEffect(() => {
         const socket = io('http://localhost:3001')
         setSocket(socket)
         socket.on('connect', () => {
-          console.log('connected')
+          socket.emit('cardRender', {url: 'http://192.168.11.27:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
         })
     
         socket.on('disconnect', () => {
@@ -57,7 +67,16 @@ export default function Kaban() {
         socket.on('cardRender', (msg)=>{
           let message = JSON.parse(msg.dados)
           if(message)
-          setitems(message)
+          setitems(message.solicitados)
+          setColumn2Items(message.agendados)
+          setColumn3Items(message.atendimento)
+          setColumn4Items(message.pos_exame)
+          setColumn5Items(message.finalizados)
+          setcolum1Count(message.count.total_solicitatos)
+          setcolum2Count(message.count.total_agendados)
+          setcolum3Count(message.count.total_atendimento)
+          setcolum4Count(message.count.total_pos_exame)
+          setcolum5Count(message.count.total_finalizados)
         })
     
         return () => {
@@ -71,10 +90,11 @@ export default function Kaban() {
       }
 
       console.log(result)
+
+  
   
       if (result.source.droppableId === "droppable1" && result.destination.droppableId === "droppable2") {
         const item = items[result.source.index];
-
         setitems((prevItems) => {
           const newItems = Array.from(prevItems);
           newItems.splice(result.source.index, 1);
@@ -86,6 +106,18 @@ export default function Kaban() {
           newItems.splice(result.destination.index, 0, item);
           return newItems;
         });
+
+        let imagem = 'cadeira-de-rodas-preto.png'
+        axios.post('http://192.168.11.27:80/api-moinhos-production/public/api/moinhos/agendar', {
+                acess_number: item.acess_number,
+                data_agendamento: '14/11/1994',
+                hora_agendamento: '14:11',
+                imagem_cadeira: imagem,
+                user: 'thiago'
+        }, config).then(()=>{
+            socket.emit('cardRender', {url: 'http://192.168.11.27:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
+        }).catch((error)=>{ console.log(error)})
+
 
       } else if (result.source.droppableId === "droppable2" && result.destination.droppableId === "droppable1") {
         const item = column2Items[result.source.index];
@@ -101,6 +133,16 @@ export default function Kaban() {
           newItems.splice(result.destination.index, 0, item);
           return newItems;
         });
+
+
+        axios.post('http://192.168.11.27:80/api-moinhos-production/public/api/moinhos/cancelar', {
+            acess_number: item.acess_number,
+            identificacao: 1,
+            codigo_setor_exame:  item.codigo_setor_exame,
+            data: item.hora_pedidoX,
+        }, config).then(()=>{
+            socket.emit('cardRender', {url: 'http://192.168.11.27:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
+        }).catch((error)=> console.log(error))
 
       } else if (result.source.droppableId === "droppable2" && result.destination.droppableId === "droppable3"){
         const item = column2Items[result.source.index];
@@ -200,7 +242,10 @@ export default function Kaban() {
           <DragDropContext onDragEnd={onDragEnd}>
             <div className={styles.drag}>
                 <div className={styles.column}>
-                <h2>Column 1</h2>
+                <div className={styles.titulo}>
+                    <h4>Solicitados</h4>
+                    <p>{colum1Count}</p>
+                </div>
                 <Droppable droppableId="droppable1">
                     {(provided, snapshot) => (
                     <div
@@ -209,7 +254,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                        <Draggable key={item.acess_number} draggableId={String(item.acess_number)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -220,7 +265,17 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.tarefa}
+                                <div className={styles.card}>
+                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={styles.conteudo}>
+                                        <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
+                                        <span><b>Data nasc.</b> {item.data_nasc}</span>
+                                        <span><b>Exame.</b> {item.descricao_exame}</span>
+                                        <span><b>Setor.</b> {item.setor}</span>
+                                        <div className={styles.atendimento}><span><b>Solicitado em </b> {item.data_movimentacao}</span><AiOutlineEllipsis onClick={()=>{modalConteudo(item)}} className={styles.icones}></AiOutlineEllipsis></div>
+                                    </div>
+                                </div>
+
                             </div>
                             )}
                         </Draggable>
@@ -232,7 +287,10 @@ export default function Kaban() {
                 </div>
 
                 <div className={styles.column}>
-                <h2>Column 2</h2>
+                <div className={styles.titulo}>
+                    <h4>Agendados</h4>
+                    <p>{colum2Count}</p>
+                </div>
                 <Droppable droppableId="droppable2">
                     {(provided, snapshot) => (
                     <div
@@ -241,7 +299,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {column2Items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                        <Draggable key={item.acess_number} draggableId={String(item.acess_number)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -252,7 +310,16 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.tarefa}
+                                <div className={styles.card}>
+                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={styles.conteudo}>
+                                        <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
+                                        <span><b>Data nasc.</b> {item.data_nasc}</span>
+                                        <span><b>Exame.</b> {item.descricao_exame}</span>
+                                        <span><b>Setor.</b> {item.setor}</span>
+                                        <div className={styles.atendimento}><span><b>Solicitado em </b> {item.data_movimentacao}</span><AiOutlineEllipsis onClick={()=>{modalConteudo(item)}} className={styles.icones}></AiOutlineEllipsis></div>
+                                    </div>
+                                </div>
                             </div>
                             )}
                         </Draggable>
@@ -264,7 +331,10 @@ export default function Kaban() {
                 </div>
 
                 <div className={styles.column}>
-                <h2>Column 3</h2>
+                <div className={styles.titulo}>
+                    <h4>Atendimento</h4>
+                    <p>{colum3Count}</p>
+                </div>
                 <Droppable droppableId="droppable3">
                     {(provided, snapshot) => (
                     <div
@@ -273,7 +343,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {column3Items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                        <Draggable key={item.acess_number} draggableId={String(item.acess_number)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -284,7 +354,16 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.tarefa}
+                                <div className={styles.card}>
+                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={styles.conteudo}>
+                                        <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
+                                        <span><b>Data nasc.</b> {item.data_nasc}</span>
+                                        <span><b>Exame.</b> {item.descricao_exame}</span>
+                                        <span><b>Setor.</b> {item.setor}</span>
+                                        <div className={styles.atendimento}><span><b>Solicitado em </b> {item.data_movimentacao}</span><AiOutlineEllipsis onClick={()=>{modalConteudo(item)}} className={styles.icones}></AiOutlineEllipsis></div>
+                                    </div>
+                                </div>
                             </div>
                             )}
                         </Draggable>
@@ -296,7 +375,10 @@ export default function Kaban() {
                 </div>
 
                 <div className={styles.column}>
-                <h2>Column 4</h2>
+                <div className={styles.titulo}>
+                    <h4>Pós exame</h4>
+                    <p>{colum4Count}</p>
+                </div>
                 <Droppable droppableId="droppable4">
                     {(provided, snapshot) => (
                     <div
@@ -305,7 +387,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {column4Items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                        <Draggable key={item.acess_number} draggableId={String(item.acess_number)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -316,7 +398,16 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.tarefa}
+                                <div className={styles.card}>
+                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={styles.conteudo}>
+                                        <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
+                                        <span><b>Data nasc.</b> {item.data_nasc}</span>
+                                        <span><b>Exame.</b> {item.descricao_exame}</span>
+                                        <span><b>Setor.</b> {item.setor}</span>
+                                        <div className={styles.atendimento}><span><b>Solicitado em </b> {item.data_movimentacao}</span><AiOutlineEllipsis onClick={()=>{modalConteudo(item)}} className={styles.icones}></AiOutlineEllipsis></div>
+                                    </div>
+                                </div>
                             </div>
                             )}
                         </Draggable>
@@ -328,7 +419,10 @@ export default function Kaban() {
                 </div>
 
                 <div className={styles.column}>
-                <h2>Column 5</h2>
+                <div className={styles.titulo}>
+                    <h4>Finalizados</h4>
+                    <p>{colum5Count}</p>
+                </div>
                 <Droppable droppableId="droppable5">
                     {(provided, snapshot) => (
                     <div
@@ -337,7 +431,7 @@ export default function Kaban() {
                         style={getListStyle(snapshot.isDraggingOver)}
                     >
                         {column5Items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                        <Draggable key={item.acess_number} draggableId={String(item.acess_number)} index={index}>
                             {(provided, snapshot) => (
                             <div
                                 ref={provided.innerRef}
@@ -348,7 +442,16 @@ export default function Kaban() {
                                 provided.draggableProps.style
                                 )}
                             >
-                                {item.tarefa}
+                                <div className={styles.card}>
+                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={styles.conteudo}>
+                                        <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
+                                        <span><b>Data nasc.</b> {item.data_nasc}</span>
+                                        <span><b>Exame.</b> {item.descricao_exame}</span>
+                                        <span><b>Setor.</b> {item.setor}</span>
+                                        <div className={styles.atendimento}><span><b>Solicitado em </b> {item.data_movimentacao}</span><AiOutlineEllipsis onClick={()=>{modalConteudo(item)}} className={styles.icones}></AiOutlineEllipsis></div>
+                                    </div>
+                                </div>
                             </div>
                             )}
                         </Draggable>
