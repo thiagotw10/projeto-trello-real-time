@@ -6,6 +6,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
 import { AiOutlineEllipsis } from "react-icons/ai";
 import DetalhesModal from "./DetalhesModal";
+import FormAgendar from "./FormAgendar";
 
 
 const grid = 8;
@@ -41,6 +42,7 @@ export default function Kaban() {
     const [socket, setSocket] = useState(null);
 
     const [exibirModal, setExibirModal] = useState(false);
+    const [exibirAgendar, setExibirAgendar] = useState(false);
     const [modalData, setModalData] = useState(null);
 
     const modalConteudo = (item) => {
@@ -53,6 +55,13 @@ export default function Kaban() {
         setModalData(null);
         setExibirModal(false);
     };
+
+   
+    const fecharAgendar = () =>{
+        setExibirAgendar(false)
+        socket.emit('cardRender', {url: 'http://10.86.32.44:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
+    }
+
 
     const [items, setitems] = useState([]);
     const [column2Items, setColumn2Items] = useState([]);
@@ -70,7 +79,7 @@ export default function Kaban() {
         const socket = io('http://localhost:3001')
         setSocket(socket)
         socket.on('connect', () => {
-          socket.emit('cardRender', {url: 'http://192.168.11.27:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
+          socket.emit('cardRender', {url: 'http://10.86.32.44:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
         })
     
         socket.on('disconnect', () => {
@@ -120,16 +129,8 @@ export default function Kaban() {
           return newItems;
         });
 
-        let imagem = 'cadeira-de-rodas-preto.png'
-        axios.post('http://192.168.11.27:80/api-moinhos-production/public/api/moinhos/agendar', {
-                acess_number: item.acess_number,
-                data_agendamento: '14/11/1994',
-                hora_agendamento: '14:11',
-                imagem_cadeira: imagem,
-                user: 'thiago'
-        }, config).then(()=>{
-            socket.emit('cardRender', {url: 'http://192.168.11.27:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
-        }).catch((error)=>{ console.log(error)})
+        setExibirAgendar(true)
+        setModalData(item);
 
 
       } else if (result.source.droppableId === "droppable2" && result.destination.droppableId === "droppable1") {
@@ -148,13 +149,13 @@ export default function Kaban() {
         });
 
 
-        axios.post('http://192.168.11.27:80/api-moinhos-production/public/api/moinhos/cancelar', {
+        axios.post('http://10.86.32.44:80/api-moinhos-production/public/api/moinhos/cancelar', {
             acess_number: item.acess_number,
             identificacao: 1,
             codigo_setor_exame:  item.codigo_setor_exame,
             data: item.hora_pedidoX,
         }, config).then(()=>{
-            socket.emit('cardRender', {url: 'http://192.168.11.27:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
+            socket.emit('cardRender', {url: 'http://10.86.32.44:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
         }).catch((error)=> console.log(error))
 
       } else if (result.source.droppableId === "droppable2" && result.destination.droppableId === "droppable3"){
@@ -330,7 +331,7 @@ export default function Kaban() {
                                         <span><b>Data nasc.</b> {item.data_nasc}</span>
                                         <span><b>Exame.</b> {item.descricao_exame}</span>
                                         <span><b>Setor.</b> {item.setor}</span>
-                                        <div className={styles.atendimento}><span><b>Solicitado em </b> {item.data_movimentacao}</span><AiOutlineEllipsis onClick={()=>{modalConteudo(item)}} className={styles.icones}></AiOutlineEllipsis></div>
+                                        <div className={styles.atendimento}><span><b>Agendado para </b> {item.data_agendamento} - {item.hora_agendamento}</span><AiOutlineEllipsis onClick={()=>{modalConteudo(item)}} className={styles.icones}></AiOutlineEllipsis></div>
                                     </div>
                                 </div>
                             </div>
@@ -476,9 +477,13 @@ export default function Kaban() {
                 </div>
             </div>
           </DragDropContext>
+          
           {exibirModal && (
                 <DetalhesModal dados={modalData} onClose={fecharModal} />
           )}
+
+          {exibirAgendar && (<FormAgendar  onFechar={fecharAgendar} dados={modalData} />)}
+          
           <div><Link href="/">Voltar</Link></div>
         </>
       );
