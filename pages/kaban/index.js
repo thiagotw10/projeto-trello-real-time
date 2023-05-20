@@ -7,7 +7,9 @@ import axios from "axios";
 import { AiOutlineEllipsis } from "react-icons/ai";
 import DetalhesModal from "./DetalhesModal";
 import FormAgendar from "./FormAgendar";
-
+import url from "./url";
+import SelectNome from "./SelectNome";
+import { useRouter } from "next/router";
 
 const grid = 8;
 
@@ -31,15 +33,10 @@ const getListStyle = isDraggingOver => ({
   height: '85vh',
 });
 
-
-
-const config = {
-    headers: { Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4` }
-};
-
 export default function Kaban() {
-
+    const route = useRouter();
     const [socket, setSocket] = useState(null);
+
 
     const [exibirModal, setExibirModal] = useState(false);
     const [exibirAgendar, setExibirAgendar] = useState(false);
@@ -59,11 +56,26 @@ export default function Kaban() {
    
     const fecharAgendar = () =>{
         setExibirAgendar(false)
-        socket.emit('cardRender', {url: 'http://10.86.32.44:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
+        socket.emit('cardRender', {url: url().url + '/moinhos', token: url().config})
+    }
+
+
+    const filtroNome = (value) =>{
+      const val = value;
+      route.push(`/kaban?setor=${val}`);
+      
+     if(value == ''){
+      setitems(mantemItems)
+      return 
+     } 
+     let solicitadosNovos = mantemItems.filter((val)=> val.paciente == value)
+     setitems(solicitadosNovos)
     }
 
 
     const [items, setitems] = useState([]);
+    const [mantemItems, setMantemItens] = useState([]);
+
     const [column2Items, setColumn2Items] = useState([]);
     const [column3Items, setColumn3Items] = useState([]);
     const [column4Items, setColumn4Items] = useState([]);
@@ -75,11 +87,13 @@ export default function Kaban() {
     const [colum4Count, setcolum4Count] = useState(0);
     const [colum5Count, setcolum5Count] = useState(0);
 
+    const [selectPorNome, setSelectPorNome] = useState([]);
+
     useEffect(() => {
         const socket = io('http://localhost:3001')
         setSocket(socket)
         socket.on('connect', () => {
-          socket.emit('cardRender', {url: 'http://10.86.32.44:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
+          socket.emit('cardRender', {url: url().url + '/moinhos', token: url().config})
         })
     
         socket.on('disconnect', () => {
@@ -90,6 +104,7 @@ export default function Kaban() {
           let message = JSON.parse(msg.dados)
           if(message)
           setitems(message.solicitados)
+          setMantemItens(message.solicitados)
           setColumn2Items(message.agendados)
           setColumn3Items(message.atendimento)
           setColumn4Items(message.pos_exame)
@@ -99,6 +114,8 @@ export default function Kaban() {
           setcolum3Count(message.count.total_atendimento)
           setcolum4Count(message.count.total_pos_exame)
           setcolum5Count(message.count.total_finalizados)
+
+          setSelectPorNome(message.lista_nome)
         })
     
         return () => {
@@ -149,13 +166,13 @@ export default function Kaban() {
         });
 
 
-        axios.post('http://10.86.32.44:80/api-moinhos-production/public/api/moinhos/cancelar', {
+        axios.post(url().url + '/moinhos/cancelar', {
             acess_number: item.acess_number,
             identificacao: 1,
             codigo_setor_exame:  item.codigo_setor_exame,
             data: item.hora_pedidoX,
-        }, config).then(()=>{
-            socket.emit('cardRender', {url: 'http://10.86.32.44:80/api-moinhos-production/public/api/moinhos', token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4'})
+        }, url().config).then(()=>{
+           socket.emit('cardRender', {url: url().url + '/moinhos', token: url().config})
         }).catch((error)=> console.log(error))
 
       } else if (result.source.droppableId === "droppable2" && result.destination.droppableId === "droppable3"){
@@ -253,6 +270,7 @@ export default function Kaban() {
   
     return (
         <>
+          <div><SelectNome options={selectPorNome} onMatheus={filtroNome}/></div>
           <DragDropContext onDragEnd={onDragEnd}>
             <div className={styles.drag}>
                 <div className={styles.column}>

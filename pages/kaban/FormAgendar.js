@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import styles from "@/styles/kaban.module.css";
 import { AiOutlineClose } from "react-icons/ai";
 import axios from "axios";
+import ActivityLoader from "./ActivityLoader";
+import url from "./url";
+
 
 const FormAgendar = ({onFechar, dados}) => {
 
-
-  const config = {
-    headers: { Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjg1OjUwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjgyMzgwNDIzLCJleHAiOjE2ODUwMDg0MjMsIm5iZiI6MTY4MjM4MDQyMywianRpIjoiWVFaSEp2cmRpdHJsRFFydSIsInN1YiI6IjIiLCJwcnYiOiI0YTU2OGU0ZDM2NGEyMmRlY2FhYTJlMjNhM2Y3NDNmNzhhYWYxNTllIn0.itWbAmYSvB8NAmQ-jotwi6vxRrrV595uJurceYn2qA4` }
-  };
+  const [loading, setLoading] = useState(false)
 
   const [form, setForm] = useState({
     data: "",
@@ -23,7 +23,7 @@ const FormAgendar = ({onFechar, dados}) => {
 
   function agendar(e){
     e.preventDefault();
-
+    setLoading(true)
     var dataOriginal = form.data;
     var data = new Date(dataOriginal);
     var dia = data.getDate();
@@ -32,13 +32,13 @@ const FormAgendar = ({onFechar, dados}) => {
     var dataFormatada = dia + "/" + mes + "/" + ano;
 
     let imagem = 'cadeira-de-rodas-preto.png'
-        axios.post('http://10.86.32.44:80/api-moinhos-production/public/api/moinhos/agendar', {
+        axios.post(url().url + '/moinhos/agendar', {
                 acess_number: dados.acess_number,
                 data_agendamento: dataFormatada,
                 hora_agendamento: form.hora,
                 imagem_cadeira: imagem,
                 user: 'thiago'
-        }, config).then(()=>{
+        }, url().config).then(()=>{
             onFechar()
         }).catch((error)=>{ console.log(error)})
 
@@ -107,13 +107,14 @@ const FormAgendar = ({onFechar, dados}) => {
                   </div>
                 </div>
                 <div className="form-group">
-                  <button
+                  {loading ? <ActivityLoader/> : <button
                     type="submit"
                     className="btn btn-dim btn-outline-primary"
                     id="marcar-horario"
                   >
                     Agendar
-                  </button>
+                  </button>}
+                 
                   <button
                     className="btn btn-dim btn-outline-primary d-none"
                     id="marcar-horario-carregando"

@@ -25,10 +25,8 @@ io.on('connection', (socket) => {
     // console.log(socket.id+', conectado ...')
 
     socket.on('cardRender', async (msg) => {
-      const config = {
-        headers: { Authorization: `Bearer ${msg.token}` }
-    };
-      var dados =  await axios.get(msg.url, config).then((val)=>{
+     
+      var dados =  await axios.get(msg.url, msg.token).then((val)=>{
         io.emit('cardRender', {dados: JSON.stringify(val.data)});
         dadosArray = val.data
       }).catch((error)=>{
