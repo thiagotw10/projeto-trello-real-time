@@ -42,8 +42,28 @@ export default function Kaban() {
     const [exibirAgendar, setExibirAgendar] = useState(false);
     const [modalData, setModalData] = useState(null);
 
+
+    
+    const [items, setitems] = useState([]);
+    const [mantemItems, setMantemItens] = useState([]);
+
+    const [column2Items, setColumn2Items] = useState([]);
+    const [column3Items, setColumn3Items] = useState([]);
+    const [column4Items, setColumn4Items] = useState([]);
+    const [column5Items, setColumn5Items] = useState([]);
+
+    const [colum1Count, setcolum1Count] = useState(0);
+    const [colum2Count, setcolum2Count] = useState(0);
+    const [colum3Count, setcolum3Count] = useState(0);
+    const [colum4Count, setcolum4Count] = useState(0);
+    const [colum5Count, setcolum5Count] = useState(0);
+
+    const [selectPorNome, setSelectPorNome] = useState([]);
+    const [selectPorSala, setSelectPorSala] = useState([]);
+    const [selectPorSetor, setSelectPorSetor] = useState([]);
+    const [selectPorNomeValor, setSelectPorNomeValor] = useState(undefined);
+
     const modalConteudo = (item) => {
-        console.table(item);
         setModalData(item);
         setExibirModal(true);
     };
@@ -61,76 +81,115 @@ export default function Kaban() {
 
 
     const filtroNome = (value) =>{
-      const val = value;
-      route.push(`/kaban?setor=${val}`);
-      
-     if(value == ''){
-      setitems(mantemItems)
-      return 
-     } 
-     let solicitadosNovos = mantemItems.filter((val)=> val.paciente == value)
-     setitems(solicitadosNovos)
+        setSelectPorNomeValor(value)
+        if(value.nome == '' || value.setor == '' || value.sala == ''){
+          setitems(mantemItems.solicitados)
+          setColumn2Items(mantemItems.agendados)
+          setColumn3Items(mantemItems.pos_exame)
+          setColumn4Items(mantemItems.atendimento)
+          setColumn5Items(mantemItems.finalizados)
+          setcolum1Count(mantemItems.solicitados.length)
+          setcolum2Count(mantemItems.agendados.length)
+          setcolum3Count(mantemItems.pos_exame.length)
+          setcolum4Count(mantemItems.atendimento.length)
+          setcolum5Count(mantemItems.finalizados.length)
+          return 
+        }
+
+
+        const valores = Object.values(value); 
+        let solicitadosNovos = mantemItems.solicitados.filter((val)=> valores.includes(value.nome ? val.paciente : value.sala ? val.sala : val.setor_exame))
+        let agendadosNovos = mantemItems.agendados.filter((val)=> valores.includes(value.nome ? val.paciente : value.sala ? val.sala : val.setor_exame))
+        let atendimentosNovos = mantemItems.atendimento.filter((val)=> valores.includes(value.nome ? val.paciente : value.sala ? val.sala : val.setor_exame))
+        let posexamesNovos = mantemItems.pos_exame.filter((val)=> valores.includes(value.nome ? val.paciente : value.sala ? val.sala : val.setor_exame))
+        let finalizadosNovos = mantemItems.finalizados.filter((val)=> valores.includes(value.nome ? val.paciente : value.sala ? val.sala : val.setor_exame))
+        setitems(solicitadosNovos)
+        setColumn2Items(agendadosNovos)
+        setColumn3Items(atendimentosNovos)
+        setColumn4Items(posexamesNovos)
+        setColumn5Items(finalizadosNovos)
+
+        setcolum1Count(solicitadosNovos.length)
+        setcolum2Count(agendadosNovos.length)
+        setcolum3Count(atendimentosNovos.length)
+        setcolum4Count(posexamesNovos.length)
+        setcolum5Count(finalizadosNovos.length)
     }
 
 
-    const [items, setitems] = useState([]);
-    const [mantemItems, setMantemItens] = useState([]);
-
-    const [column2Items, setColumn2Items] = useState([]);
-    const [column3Items, setColumn3Items] = useState([]);
-    const [column4Items, setColumn4Items] = useState([]);
-    const [column5Items, setColumn5Items] = useState([]);
-
-    const [colum1Count, setcolum1Count] = useState(0);
-    const [colum2Count, setcolum2Count] = useState(0);
-    const [colum3Count, setcolum3Count] = useState(0);
-    const [colum4Count, setcolum4Count] = useState(0);
-    const [colum5Count, setcolum5Count] = useState(0);
-
-    const [selectPorNome, setSelectPorNome] = useState([]);
 
     useEffect(() => {
         const socket = io('http://localhost:3001')
         setSocket(socket)
         socket.on('connect', () => {
-          socket.emit('cardRender', {url: url().url + '/moinhos', token: url().config})
+          if(!selectPorNomeValor){
+            socket.emit('cardRender', {url: url().url + '/moinhos', token: url().config})
+          }
         })
     
         socket.on('disconnect', () => {
           console.log('disconnected')
         })
-    
-        socket.on('cardRender', (msg)=>{
-          let message = JSON.parse(msg.dados)
-          if(message)
-          setitems(message.solicitados)
-          setMantemItens(message.solicitados)
-          setColumn2Items(message.agendados)
-          setColumn3Items(message.atendimento)
-          setColumn4Items(message.pos_exame)
-          setColumn5Items(message.finalizados)
-          setcolum1Count(message.count.total_solicitatos)
-          setcolum2Count(message.count.total_agendados)
-          setcolum3Count(message.count.total_atendimento)
-          setcolum4Count(message.count.total_pos_exame)
-          setcolum5Count(message.count.total_finalizados)
 
-          setSelectPorNome(message.lista_nome)
+        const atualizaValores = (message)=>{
+          return new Promise((resolve, reject)=>{
+            setMantemItens(message)
+            setitems(message.solicitados)
+            setColumn2Items(message.agendados)
+            setColumn3Items(message.atendimento)
+            setColumn4Items(message.pos_exame)
+            setColumn5Items(message.finalizados)
+            setcolum1Count(message.count.total_solicitatos)
+            setcolum2Count(message.count.total_agendados)
+            setcolum3Count(message.count.total_atendimento)
+            setcolum4Count(message.count.total_pos_exame)
+            setcolum5Count(message.count.total_finalizados)
+            setSelectPorNome(message.lista_nome)
+            setSelectPorSala(message.filtroSala)
+            setSelectPorSetor(message.filtro)
+            resolve(true)
+          })
+        }
+    
+        socket.on('cardRender', async (msg)=>{
+          let message = await JSON.parse(msg.dados)
+          let rodou = await atualizaValores(message)
+          if(rodou){
+         
+            if(selectPorNomeValor){
+              const valores = Object.values(selectPorNomeValor); 
+              let solicitadosNovos = message.solicitados.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+              let agendadosNovos = message.agendados.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+              let atendimentosNovos = message.atendimento.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+              let posexamesNovos = message.pos_exame.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+              let finalizadosNovos = message.finalizados.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+              setitems(solicitadosNovos)
+              setColumn2Items(agendadosNovos)
+              setColumn3Items(atendimentosNovos)
+              setColumn4Items(posexamesNovos)
+              setColumn5Items(finalizadosNovos)
+
+              setcolum1Count(solicitadosNovos.length)
+              setcolum2Count(agendadosNovos.length)
+              setcolum3Count(atendimentosNovos.length)
+              setcolum4Count(posexamesNovos.length)
+              setcolum5Count(finalizadosNovos.length)
+            }
+          }
+         
         })
     
         return () => {
           socket.disconnect()
         }
-      }, [])
+      }, [selectPorNomeValor])
 
     const onDragEnd = (result) => {
       if (!result.destination) {
         return;
       }
 
-      console.log(result)
-
-  
+      
   
       if (result.source.droppableId === "droppable1" && result.destination.droppableId === "droppable2") {
         const item = items[result.source.index];
@@ -270,7 +329,7 @@ export default function Kaban() {
   
     return (
         <>
-          <div><SelectNome options={selectPorNome} onMatheus={filtroNome}/></div>
+          <div><SelectNome optionsNome={selectPorNome} onMatheus={filtroNome} optionsSala={selectPorSala} optionsSetor={selectPorSetor}/></div>
           <DragDropContext onDragEnd={onDragEnd}>
             <div className={styles.drag}>
                 <div className={styles.column}>
