@@ -52,7 +52,7 @@ const SelectNome = ({ optionsNome, onMatheus, optionsSala, optionsSetor }) => {
           </option>
         ))}
       </select>
-      <p>Você selecionou: {selectedValue}</p>
+      {/* <p>Você selecionou: {selectedValue}</p> */}
 
       <select value={selectedValueSala} onChange={handleChangeSala}>
         <option value="">Selecione uma opção</option>
@@ -62,7 +62,7 @@ const SelectNome = ({ optionsNome, onMatheus, optionsSala, optionsSetor }) => {
           </option>
         ))}
       </select>
-      <p>Você selecionou: {selectedValueSala}</p>
+      {/* <p>Você selecionou: {selectedValueSala}</p> */}
 
       <select value={selectedValueSetor}  onChange={handleChangeSetor}>
         <option value="">Selecione uma opção</option>
@@ -72,7 +72,7 @@ const SelectNome = ({ optionsNome, onMatheus, optionsSala, optionsSetor }) => {
           </option>
         ))}
       </select>
-      <p>Você selecionou: {selectedValueSetor}</p>
+      {/* <p>Você selecionou: {selectedValueSetor}</p> */}
     </div>
   );
 };

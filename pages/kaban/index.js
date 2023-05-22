@@ -155,25 +155,30 @@ export default function Kaban() {
           let message = await JSON.parse(msg.dados)
           let rodou = await atualizaValores(message)
           if(rodou){
-         
-            if(selectPorNomeValor){
-              const valores = Object.values(selectPorNomeValor); 
-              let solicitadosNovos = message.solicitados.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
-              let agendadosNovos = message.agendados.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
-              let atendimentosNovos = message.atendimento.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
-              let posexamesNovos = message.pos_exame.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
-              let finalizadosNovos = message.finalizados.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
-              setitems(solicitadosNovos)
-              setColumn2Items(agendadosNovos)
-              setColumn3Items(atendimentosNovos)
-              setColumn4Items(posexamesNovos)
-              setColumn5Items(finalizadosNovos)
+            if(selectPorNomeValor !== undefined && selectPorNomeValor !== null){
+              let nome = (selectPorNomeValor.nome == '' || selectPorNomeValor.nome == undefined) ? false : true
+              let sala = (selectPorNomeValor.sala == '' || selectPorNomeValor.sala == undefined) ? false : true
+              let setor = (selectPorNomeValor.setor == '' || selectPorNomeValor.setor == undefined) ? false : true
+             
+              if(nome || sala || setor){
+                const valores = Object.values(selectPorNomeValor); 
+                let solicitadosNovos = message.solicitados.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+                let agendadosNovos = message.agendados.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+                let atendimentosNovos = message.atendimento.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+                let posexamesNovos = message.pos_exame.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+                let finalizadosNovos = message.finalizados.filter((val)=> valores.includes(selectPorNomeValor.nome ? val.paciente : selectPorNomeValor.sala ? val.sala : val.setor_exame))
+                setitems(solicitadosNovos)
+                setColumn2Items(agendadosNovos)
+                setColumn3Items(atendimentosNovos)
+                setColumn4Items(posexamesNovos)
+                setColumn5Items(finalizadosNovos)
 
-              setcolum1Count(solicitadosNovos.length)
-              setcolum2Count(agendadosNovos.length)
-              setcolum3Count(atendimentosNovos.length)
-              setcolum4Count(posexamesNovos.length)
-              setcolum5Count(finalizadosNovos.length)
+                setcolum1Count(solicitadosNovos.length)
+                setcolum2Count(agendadosNovos.length)
+                setcolum3Count(atendimentosNovos.length)
+                setcolum4Count(posexamesNovos.length)
+                setcolum5Count(finalizadosNovos.length)
+              }
             }
           }
          
@@ -357,7 +362,7 @@ export default function Kaban() {
                                 )}
                             >
                                 <div className={styles.card}>
-                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={item.cor_classificacao == 'VERDE' ? styles.nomeverde : item.cor_classificacao == 'AMARELO' ? styles.nomeamarelo : styles.nomelaranja}><span>{item.paciente}</span></div>
                                     <div className={styles.conteudo}>
                                         <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
                                         <span><b>Data nasc.</b> {item.data_nasc}</span>
@@ -402,7 +407,7 @@ export default function Kaban() {
                                 )}
                             >
                                 <div className={styles.card}>
-                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={item.cor_classificacao == 'VERDE' ? styles.nomeverde : item.cor_classificacao == 'AMARELO' ? styles.nomeamarelo : styles.nomelaranja}><span>{item.paciente}</span></div>
                                     <div className={styles.conteudo}>
                                         <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
                                         <span><b>Data nasc.</b> {item.data_nasc}</span>
@@ -446,7 +451,7 @@ export default function Kaban() {
                                 )}
                             >
                                 <div className={styles.card}>
-                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={item.cor_classificacao == 'VERDE' ? styles.nomeverde : item.cor_classificacao == 'AMARELO' ? styles.nomeamarelo : styles.nomelaranja}><span>{item.paciente}</span></div>
                                     <div className={styles.conteudo}>
                                         <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
                                         <span><b>Data nasc.</b> {item.data_nasc}</span>
@@ -490,7 +495,7 @@ export default function Kaban() {
                                 )}
                             >
                                 <div className={styles.card}>
-                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={item.cor_classificacao == 'VERDE' ? styles.nomeverde : item.cor_classificacao == 'AMARELO' ? styles.nomeamarelo : styles.nomelaranja}><span>{item.paciente}</span></div>
                                     <div className={styles.conteudo}>
                                         <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
                                         <span><b>Data nasc.</b> {item.data_nasc}</span>
@@ -534,7 +539,7 @@ export default function Kaban() {
                                 )}
                             >
                                 <div className={styles.card}>
-                                    <div className={styles.nome}><span>{item.paciente}</span></div>
+                                    <div className={item.cor_classificacao == 'VERDE' ? styles.nomeverde : item.cor_classificacao == 'AMARELO' ? styles.nomeamarelo : styles.nomelaranja}><span>{item.paciente}</span></div>
                                     <div className={styles.conteudo}>
                                         <div className={styles.atendimento}><span><b>At.</b> {item.atendimento}</span><span><b>AN.</b> {item.acess_number}</span><span className={styles.bolinha}>{item.data_diferenca}</span></div>
                                         <span><b>Data nasc.</b> {item.data_nasc}</span>

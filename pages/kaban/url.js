@@ -4,5 +4,5 @@ export default function url(){
     const config = {
         headers: { Authorization: `Bearer ${token}` }
     };
-    return {url: 'http://192.168.0.107:80/api-moinhos-production/public/api', config: config}
+    return {url: 'http://10.86.32.44:80/api-moinhos-production/public/api', config: config}
 }

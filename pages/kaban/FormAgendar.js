@@ -23,6 +23,9 @@ const FormAgendar = ({onFechar, dados}) => {
 
   function agendar(e){
     e.preventDefault();
+    if(form.data == '' || form.hora == ''){
+      return
+    }
     setLoading(true)
     var dataOriginal = form.data;
     var data = new Date(dataOriginal);

@@ -11,14 +11,31 @@
   min-height: 160px;
 }
 
-.nome{
+.nomelaranja{
   display: flex;
   min-height: 35px;
   justify-content: flex-start;
   align-items: center;
-  background-color: aqua;
+  background-color: orange;
   padding: 5px;
 }
+.nomeverde{
+  display: flex;
+  min-height: 35px;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: green;
+  padding: 5px;
+}
+.nomeamarelo{
+  display: flex;
+  min-height: 35px;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: yellow;
+  padding: 5px;
+}
+
 
 .nome span{
   margin-left: 10px;
